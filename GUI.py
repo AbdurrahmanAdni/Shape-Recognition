@@ -86,11 +86,11 @@ class FrontEnd(object):
             elif (value == "Segi enam beraturan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segienam_beraturan.jpg"
 
-            shape = Image.open(self.p)
-            tkshape = ImageTk.PhotoImage(shape)
-            showShape = Label(self.frameShape, image = tkshape)
-            showShape.image = tkshape
-            showShape.pack()
+            self.shape = Image.open(self.p)
+            self.tkshape = ImageTk.PhotoImage(self.shape)
+            self.showShape = Label(self.frameShape, image = self.tkshape)
+            self.showShape.image = self.tkshape
+            self.showShape.pack()
     
     def Layout(self):
         self.wpage2.config(fg = "IndianRed2", font = ("Arial", 24, "bold"))
@@ -152,7 +152,7 @@ class FrontEnd(object):
         self.show.configure(fg = "SeaGreen1", bg = "grey10", highlightbackground = "SeaGreen1", highlightthickness = 2, font = ("Arial", 10))
         self.show.pack()
         self.show.place(relx=0.35, rely=0.3)
-        self.okImage = Button(self.frameShape, width = 10, height = 1, text = "ok", fg = "SeaGreen1", bg = "grey10", font = ("Arial", 10), command = self.ShowShape)
+        self.okImage = Button(self.frameShape, width = 10, height = 1, text = "OK!", fg = "SeaGreen1", bg = "grey10", font = ("Arial", 10), command = self.ShowShape)
         self.okImage.pack()
         self.okImage.place(relx=0.38, rely = 0.45)
 
@@ -194,7 +194,8 @@ class FrontEnd(object):
         self.breset.place(relx=0.92, rely = 0.85)
     
     def ResetLayout(self):
-        self.myvar.destroy()
+        if('self.myvar' in globals()):
+            self.myvar.destroy()
         self.frameImage.destroy()
         self.browseImage.destroy()
 
@@ -204,6 +205,22 @@ class FrontEnd(object):
         self.browseImage = Button(self.frameImage, width = 10, height = 1, text = "BROWSE", fg = "OliveDrab1", bg = "grey10", font = ("Arial", 10), command = self.BrowseImage)
         self.browseImage.pack()
         self.browseImage.place(relx=0.38, rely = 0.45)
+
+        if('self.showShape' in globals()):
+            self.showShape.destroy()
+        self.frameShape.destroy()
+        self.show.destroy()
+        self.okImage.destroy()
+        self.frameShape = Frame(window, width=500, height=375, bg="grey10", highlightbackground = "SeaGreen1", highlightthickness = 2)
+        self.frameShape.pack()
+        self.frameShape.place(relx=0.61, rely = 0.13)
+        self.show = OptionMenu(* (self.frameShape, self.var) + tuple(self.shapeOptions))
+        self.show.configure(fg = "SeaGreen1", bg = "grey10", highlightbackground = "SeaGreen1", highlightthickness = 2, font = ("Arial", 10))
+        self.show.pack()
+        self.show.place(relx=0.35, rely=0.3)
+        self.okImage = Button(self.frameShape, width = 10, height = 1, text = "ok", fg = "SeaGreen1", bg = "grey10", font = ("Arial", 10), command = self.ShowShape)
+        self.okImage.pack()
+        self.okImage.place(relx=0.38, rely = 0.45)
 
 # class AutoScrollbar(Scrollbar):
 #     # a scrollbar that hides itself if it's not needed.  only
