@@ -1,6 +1,7 @@
 from tkinter import *
 from PIL import Image, ImageTk
 from tkinter import filedialog
+import bridge as bg
 
 class FrontEnd(object):
     def __init__(self, master):
@@ -107,9 +108,9 @@ class FrontEnd(object):
 
         self.bquit.config(width = 10, height = 1, font = ("Arial", 10))
         self.bquit.pack()
-        self.bquit.place(relx=0.92, rely = 0.95)
+        self.bquit.place(relx=0.92, rely = 0.935)
 
-        self.bcheck = Button(window, width = 10, height = 1, text = "CHECK!", fg = "AntiqueWhite1", bg = "grey10", font = ("Arial", 10))
+        self.bcheck = Button(window, width = 10, height = 1, text = "CHECK!", fg = "AntiqueWhite1", bg = "grey10", font = ("Arial", 10), command = self.Check)
         self.bcheck.pack()
         self.bcheck.place(relx=0.46, rely=0.45)
 
@@ -171,21 +172,21 @@ class FrontEnd(object):
         self.labelMatchedFacts = Label(window, text = "Matched Facts", fg = "DarkOrchid3", bg = "grey10", font = ("Arial", 12))
         self.labelMatchedFacts.pack()
         self.labelMatchedFacts.place(relx=0.132, rely=0.675)
-        self.frameMatchedFacts = Frame(window, width=400, height=195, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
+        self.frameMatchedFacts = Frame(window, width=400, height=185, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
         self.frameMatchedFacts.pack()
         self.frameMatchedFacts.place(relx=0.02, rely = 0.715)
 
         self.labelMatchedRules = Label(window, text = "Matched Rules", fg = "DarkOrchid3", bg = "grey10", font = ("Arial", 12))
         self.labelMatchedRules.pack()
         self.labelMatchedRules.place(relx=0.42, rely=0.675)
-        self.frameMatchedRules = Frame(window, width=400, height=195, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
+        self.frameMatchedRules = Frame(window, width=400, height=185, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
         self.frameMatchedRules.pack()
         self.frameMatchedRules.place(relx=0.32, rely = 0.715)
 
         self.labelDetectionResult = Label(window, text = "Detection Result", fg = "DarkOrchid3", bg = "grey10", font = ("Arial", 12))
         self.labelDetectionResult.pack()
         self.labelDetectionResult.place(relx=0.73, rely=0.675)
-        self.frameDetectionResult = Frame(window,width=400, height=195, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
+        self.frameDetectionResult = Frame(window,width=400, height=185, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
         self.frameDetectionResult.pack()
         self.frameDetectionResult.place(relx=0.62, rely = 0.715)
 
@@ -193,11 +194,11 @@ class FrontEnd(object):
         self.ruleEditor.pack()
         self.ruleEditor.place(relx=0.92, rely = 0.716)
 
-        self.showRules = Button(window, width = 10, height = 1, text = "Show Rules", fg = "AntiqueWhite1", bg = "grey10", font = ("Arial", 10))
+        self.showRules = Button(window, width = 10, height = 1, text = "Show Rules", fg = "AntiqueWhite1", bg = "grey10", font = ("Arial", 10), command = self.ShowAllRules)
         self.showRules.pack()
         self.showRules.place(relx=0.92, rely = 0.76)
 
-        self.showFacts = Button(window, width = 10, height = 1, text = "Show Facts", fg = "AntiqueWhite1", bg = "grey10", font = ("Arial", 10))
+        self.showFacts = Button(window, width = 10, height = 1, text = "Show Facts", fg = "AntiqueWhite1", bg = "grey10", font = ("Arial", 10), command = self.ShowAllFacts)
         self.showFacts.pack()
         self.showFacts.place(relx=0.92, rely = 0.805)
 
@@ -208,6 +209,7 @@ class FrontEnd(object):
     def ResetLayout(self):
         if('self.myvar' in globals()):
             self.myvar.destroy()
+            
         self.frameImage.destroy()
         self.browseImage.destroy()
 
@@ -220,9 +222,11 @@ class FrontEnd(object):
 
         if('self.showShape' in globals()):
             self.showShape.destroy()
+
         self.frameShape.destroy()
         self.show.destroy()
         self.okImage.destroy()
+        
         self.frameShape = Frame(window, width=500, height=375, bg="grey10", highlightbackground = "SeaGreen1", highlightthickness = 2)
         self.frameShape.pack()
         self.frameShape.place(relx=0.61, rely = 0.13)
@@ -233,6 +237,87 @@ class FrontEnd(object):
         self.okImage = Button(self.frameShape, width = 10, height = 1, text = "ok", fg = "SeaGreen1", bg = "grey10", font = ("Arial", 10), command = self.ShowShape)
         self.okImage.pack()
         self.okImage.place(relx=0.38, rely = 0.45)
+
+        if('self.matchedRules' in globals()):
+            self.scrollFacts.destroy()
+            self.scrollRules.destroy()
+            self.txtFacts.destroy()
+            self.txtRules.destroy()
+        
+        self.frameMatchedFacts.destroy()
+        self.frameMatchedRules.destroy()
+
+        self.frameMatchedFacts = Frame(window, width=400, height=185, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
+        self.frameMatchedFacts.pack()
+        self.frameMatchedFacts.place(relx=0.02, rely = 0.715)
+        self.frameMatchedRules = Frame(window, width=400, height=185, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
+        self.frameMatchedRules.pack()
+        self.frameMatchedRules.place(relx=0.32, rely = 0.715)
+    
+    def Check(self):
+        self.matchedRules = bg.matchedRules()
+        self.matchedFacts = bg.matchedFacts()
+
+        self.scrollRules = Scrollbar(self.frameMatchedRules)
+        self.scrollFacts = Scrollbar(self.frameMatchedFacts)
+        self.scrollRules.pack(side = RIGHT, fill = Y)
+        self.scrollFacts.pack(side = RIGHT, fill = Y)
+
+        self.txtRules = Text(self.frameMatchedRules, width=46, height=11)
+        self.txtFacts = Text(self.frameMatchedFacts, width=46, height=11)
+        self.txtRules.pack(side = LEFT, fill = Y)
+        self.txtFacts.pack(side = LEFT, fill = Y)
+
+        self.scrollRules.config(command = self.txtRules.yview)
+        self.scrollFacts.config(command = self.txtFacts.yview)
+
+        self.txtRules.config(yscrollcommand = self.scrollRules.set)
+        self.txtFacts.config(yscrollcommand = self.scrollFacts.set)
+
+        for x in self.matchedRules:
+            self.txtRules.insert(END, x + '\n')
+
+        for x in self.matchedFacts:
+            self.txtFacts.insert(END, x + '\n')
+
+    def ShowAllRules(self):
+        self.allRules = bg.matchedRules()
+
+        self.windowRules = Toplevel()
+        self.windowRules.title("All Rules")
+        self.windowRules.geometry("600x350")
+        self.button = Button(self.windowRules, text="Dismiss", command=self.windowRules.destroy)
+        self.button.pack()
+
+        self.scrollAllRules = Scrollbar(self.windowRules)
+        self.scrollAllRules.pack(side = RIGHT, fill = Y)
+        self.txtAllRules = Text(self.windowRules, width=80, height=30)
+        self.txtAllRules.pack(side = LEFT, fill = Y)
+        self.scrollAllRules.config(command = self.txtAllRules.yview)
+        self.txtAllRules.config(yscrollcommand = self.scrollAllRules.set)
+
+        for x in self.allRules:
+            self.txtAllRules.insert(END, x + '\n')
+    
+    def ShowAllFacts(self):
+        self.allFacts = bg.matchedFacts()
+
+        self.windowFacts = Toplevel()
+        self.windowFacts.title("All Facts")
+        self.windowFacts.geometry("600x350")
+        self.button = Button(self.windowFacts, text="Dismiss", command=self.windowFacts.destroy)
+        self.button.pack()
+
+        self.scrollAllFacts = Scrollbar(self.windowFacts)
+        self.scrollAllFacts.pack(side = RIGHT, fill = Y)
+        self.txtAllFacts = Text(self.windowFacts, width=80, height=30)
+        self.txtAllFacts.pack(side = LEFT, fill = Y)
+        self.scrollAllFacts.config(command = self.txtAllFacts.yview)
+        self.txtAllFacts.config(yscrollcommand = self.scrollAllFacts.set)
+
+        for x in self.allFacts:
+            self.txtAllFacts.insert(END, x + '\n')
+
 
 # class AutoScrollbar(Scrollbar):
 #     # a scrollbar that hides itself if it's not needed.  only
