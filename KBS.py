@@ -1,10 +1,16 @@
 import itertools 
+import recognitor as reg
 # import GUI
 
 global rules
 global facts 
 global hitRules
 global allRules
+global superAllRules
+global superAllFacts
+
+superAllFacts = []
+superAllRules = []
 
 # knowledge based
 rules = {
@@ -41,13 +47,14 @@ rules = {
 }
 
 # facts list
-facts = ["sisi = 3", "sudut = 3", "sudutTerbesar > 92"]
+facts = []
 
 # hit rules list
 hitRules = []
 
 # Untuk menyimpan rules yang telah diproses berdasarkan fakta (akan terurut berdasarkan type engine yang akan diproses)
 allRules = []
+
 
 # fungsi untuk mengembalikan list of facts yang sesuai rules
 def generatePatternFacts(myList):
@@ -171,6 +178,20 @@ def inferenceEngine(tipe, shape):
             return True
     else:
         return("Tidak ada tipe")
+
+def runner(allShape, tipe, shapeCheck):
+    global rules
+    global facts 
+    global hitRules
+    global allRules
+    global superAllRules
+    global superAllFacts
+
+    for shape in allShape:
+        facts.extend(shape)
+        inferenceEngine(tipe, shapeCheck)
+        superAllFacts.append(facts)
+        superAllRules.append(allRules)
 
 # testing
 # print(inferenceEngine("BFS", "segitigaLancip"))

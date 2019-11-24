@@ -3,6 +3,10 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 import bridge as bg
 import KBS
+import recognitor as reg
+
+
+global sourcePath
 
 class FrontEnd(object):
     def __init__(self, master):
@@ -55,6 +59,7 @@ class FrontEnd(object):
         self.myvar.pack()
 
     def ShowShape(self):
+        global sourcePath
         value = self.var.get()
 
         if(value != "Select shape"):
@@ -115,7 +120,8 @@ class FrontEnd(object):
             elif (value == "Segi enam beraturan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segienam_beraturan.jpg"
                 self.choosenShape = "segienamSamaSisi"
-
+            
+            sourcePath = self.choosenShape
             self.shape = Image.open(self.p)
             self.tkshape = ImageTk.PhotoImage(self.shape)
             self.showShape = Label(self.frameShape, image = self.tkshape)
@@ -279,16 +285,16 @@ class FrontEnd(object):
             self.showResult.destroy()
             self.frameDetectionResult.destroy()
             self.sResult.destroy()
-            
+
         self.frameDetectionResult = Frame(window,width=400, height=185, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
         self.frameDetectionResult.pack()
         self.frameDetectionResult.place(relx=0.62, rely = 0.715)
 
     def Check(self):
         self.result = False
-        KBS.inferenceEngine("BFS", self.choosenShape)
-        self.shapeRules = KBS.allRules
-        self.shapeFacts = KBS.facts
+        KBS.runner(reg.outputFact, "BFS", self.choosenShape)
+        self.shapeRules = KBS.superAllRules
+        self.shapeFacts = KBS.superAllFacts
 
         self.scrollRules = Scrollbar(self.frameMatchedRules)
         self.scrollFacts = Scrollbar(self.frameMatchedFacts)

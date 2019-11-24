@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import itertools
 import math
+import GUI
 
 global outputFact
 
@@ -9,7 +10,8 @@ global outputFact
 outputFact = []
 
 #Dapatkan image
-img = cv2.imread("G:\ADNI\AKADEMIK\SEMESTER 5\IF3170 - Integelensi Buatan\TUGAS\TUBES 2\img\shapes-edit.jpg")
+path = GUI.sourcePath
+img = cv2.imread(path)
 
 #Ubah image color menjadi abu
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -61,7 +63,7 @@ def getsisiSamaPanjang(myList):
     
     if (counter == 2) :
         return "pasangSisiSamaPanjang = 2"
-    else (counter < 2) :
+    elif (counter < 2) :
         return "pasangSisiSamaPanjang < 2"
 
 def getSudutLancip(a):
