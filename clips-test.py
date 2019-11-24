@@ -26,5 +26,5 @@ new_fact = template.new_fact()
 new_fact['template-slot'] = clips.Symbol('a-symbol')
 new_fact.assertit()
 for fact in env.facts():
-    print("badoor")
+    # print("badoor")
     print(fact)

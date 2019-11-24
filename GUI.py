@@ -71,18 +71,26 @@ class FrontEnd(object):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_tumpul.jpg"
             elif (value == "Segitiga lancip"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_lancip.jpg"
+            elif (value == "Segi empat jajar genjang"):
+                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_jajargenjang.jpg"
             elif (value == "Segi empat beraturan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_beraturan.jpg"
             elif (value == "Segi empat layang-layang"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_layanglayang.jpg"
+            elif (value == "Segi empat trapesium"):
+                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium.jpg"
             elif (value == "Segi empat trapesium sama kaki"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium_kaki.jpg"
             elif (value == "Segi empat trapesium rata kiri"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium_kiri.jpg"
             elif (value == "Segi empat trapesium rata kanan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium_kanan.jpg"
+            elif (value == "Segi lima sembarang"):
+                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segilima_sembarang.jpg"
             elif (value == "Segi lima beraturan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segilima_beraturan.jpg"
+            elif (value == "Segi enam sembarang"):
+                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segienam_sembarang.jpg"
             elif (value == "Segi enam beraturan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segienam_beraturan.jpg"
 
@@ -138,12 +146,16 @@ class FrontEnd(object):
             "Segitiga lancip",
             "Segitiga sama sisi",
             "Segitiga tumpul",
+            "Segi empat jajar genjang"
             "Segi empat beraturan",
             "Segi empat layang-layang",
+            "Segi empat trapesium",
             "Segi empat trapesium sama kaki",
             "Segi empat trapesium rata kiri",
             "Segi empat trapesium rata kanan",
+            "Segi lima sembarang",
             "Segi lima beraturan",
+            "Segi enam sembarang",
             "Segi enam beraturan"
         ]
         self.var = StringVar(self.frameShape)
