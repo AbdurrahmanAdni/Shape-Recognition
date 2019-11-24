@@ -1,0 +1,38 @@
+RULE
+
+IF sisi=3 AND titik_sudut=3 THEN segitiga
+IF sisi=4 AND titik_sudut=4 THEN segiempat
+IF sisi=5 AND titik_sudut=5 THEN segilima
+IF sisi=6 AND titik_sudut=6 THEN segienam
+
+
+
+IF segitiga AND besar_sudut_terbesar<90 THEN segitiga_lancip
+IF segitiga AND besar_sudut_terbesar>90 THEN segitiga_tumpul
+IF segitiga AND besar_sudut_terbesar=90 THEN segitiga_siku
+
+IF segitiga AND jumlah_sisi_sama_panjang=2 THEN segitiga_sama_kaki
+IF segitiga_sama_kaki AND segitiga_lancip THEN segitiga_sama_kaki_lancip
+IF segitiga_sama_kaki AND segitiga_tumpul THEN segitiga_sama_kaki_tumpul
+IF segitiga_sama_kaki AND segitiga_siku THEN segitiga_sama_kaki_siku
+
+IF segitiga_sama_kaki_lancip AND besar_sudut_terbesar=60 THEN segitiga_sama_sisi
+
+
+
+IF segiempat AND jumlah_pasang_sisi_sama_panjang=2 THEN jajaran_genjang
+IF segiempat AND jumlah_pasang_sisi_sama_panjang<2 THEN trapesium
+
+IF jajaran_genjang AND besar_sudut_terbesar=90 THEN segiempat_beraturan
+IF jajaran_genjang AND besar_sudut_terbesar>90 THEN layang_layang
+IF trapesium AND jumlah_sisi_sama_panjang=2 THEN trapesium_sama_kaki
+IF trapesium AND jumlah_sudut_90=2 THEN trapesium_rata
+
+IF trapesium_rata AND sudut_90=kiri THEN trapesium_rata_kiri
+IF trapesium_rata AND sudut_90=kanan THEN trapesium_rata_kanan
+
+
+
+IF segilima AND jumlah_sisi_sama_panjang=5 THEN segilima_sama_sisi
+
+IF segienam AND jumlah_sisi_sama_panjang=6 THEN segienam_sama_sisi
