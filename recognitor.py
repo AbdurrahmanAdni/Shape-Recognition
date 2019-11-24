@@ -1,6 +1,12 @@
 import numpy as np
 import cv2
+import itertools
 import math
+
+global outputFact
+
+#Variabel keluaran dari program ini. Berisi Array of fakta
+outputFact = []
 
 #Dapatkan image
 img = cv2.imread("G:\ADNI\AKADEMIK\SEMESTER 5\IF3170 - Integelensi Buatan\TUGAS\TUBES 2\img\shapes-edit.jpg")
@@ -44,12 +50,52 @@ def getFaktaSudut(a):
     else :
         return "sudutTerbesar >= 88 sudutTerbesar =< 92"
 
-#def getsisiSamaPanjang(a):
+def getsisiSamaPanjang(myList):
+    counter = 0
+    combList = []
+    for L in range(0, len(myList)+1):
+        for subset in itertools.combinations(myList, L):
+            if(len(subset) == 2) :
+                if (abs(subset[0] - subset[1]) <=2) :
+                    counter = counter + 1
+    
+    if (counter == 2) :
+        return "pasangSisiSamaPanjang = 2"
+    else (counter < 2) :
+        return "pasangSisiSamaPanjang < 2"
 
+def getSudutLancip(a):
+    if ((a > 58) and (a < 62)):
+        return "sudutTerbesar > 58 sudutTerbesar < 62"
 
+def isSegilimaSamaSisi(myList):
+    counter = 0
+    combList = []
+    for L in range(0, len(myList)+1):
+        for subset in itertools.combinations(myList, L):
+            if(len(subset) == 2) :
+                if (abs(subset[0] - subset[1]) <=2) :
+                    counter = counter + 1
+    
+    if (counter == 5) :
+        return "sisiSamaPanjang = 5"
+    else :
+        return "false"
 
-#Variabel keluaran dari program ini. Berisi Array of Shape
-output = []
+def isSegienamSamaSisi(myList):
+    counter = 0
+    combList = []
+    for L in range(0, len(myList)+1):
+        for subset in itertools.combinations(myList, L):
+            if(len(subset) == 2) :
+                if (abs(subset[0] - subset[1]) <=2) :
+                    counter = counter + 1
+    
+    if (counter == 6) :
+        return "sisiSamaPanjang = 6"
+    else :
+        return "false"
+
 
 for contour in contours:
     approx = cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour, True), True)
@@ -67,6 +113,9 @@ for contour in contours:
 
     #Array panjang sisi
     panjang = []
+
+    #Array fakta 1 shape
+    fakta = []
 
     if len(approx) == 3 :
         cv2.putText(gray, "Triangle", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0, 0, 0), 1)
@@ -94,15 +143,19 @@ for contour in contours:
     
     sudut.sort(reverse=True)
     panjang.sort(reverse=True)
+
     shape.append(len(approx))
     shape.append(sudut)
     shape.append(panjang)
+
+    fakta.append(getFaktaSisi(len(approx)))
+    fakta.append(getFaktaSudut(sudut[0]))
+    fakta.append(getsisiSamaPanjang(panjang))
+    fakta.append(getSudutLancip(sudut[0]))
+    fakta.append(isSegilimaSamaSisi(panjang))
+    fakta.append(isSegienamSamaSisi(panjang))
     
-    output.append(shape)
-
-
-
-print(output)
+    outputFact.append(fakta)
 
 
 #Show image
