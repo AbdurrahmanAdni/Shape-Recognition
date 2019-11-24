@@ -2,6 +2,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 from tkinter import filedialog
 import bridge as bg
+import KBS
 
 class FrontEnd(object):
     def __init__(self, master):
@@ -55,45 +56,65 @@ class FrontEnd(object):
 
     def ShowShape(self):
         value = self.var.get()
+
         if(value != "Select shape"):
             if(value == "Segitiga sama kaki"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_kaki.jpg"
+                self.choosenShape = "segitigaSamaKaki"
             elif (value == "Segitiga sama kaki lancip"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_kaki_lancip.jpg"
+                self.choosenShape = "segitigaSamaKakiLancip"
             elif (value == "Segitiga sama kaki siku-siku"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_kaki_siku.jpg"
+                self.choosenShape = "segitigaSamaKakiSiku"
             elif (value == "Segitiga sama kaki tumpul"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_kaki_tumpul.jpg"
+                self.choosenShape = "segitigaSamaKakiTumpul"
             elif (value == "Segitiga lancip"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_lancip.jpg"
+                self.choosenShape = "segitigaLancip"
             elif (value == "Segitiga sama sisi"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_sisi.jpg"
+                self.choosenShape = "segitigaSamaSisi"
             elif (value == "Segitiga tumpul"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_tumpul.jpg"
+                self.choosenShape = "segitigaTumpul"
             elif (value == "Segitiga lancip"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_lancip.jpg"
+                self.choosenShape = "segitigaLancip"
             elif (value == "Segi empat jajar genjang"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_jajargenjang.jpg"
+                self.choosenShape = "jajaranGenjang"
             elif (value == "Segi empat beraturan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_beraturan.jpg"
+                self.choosenShape = "segiempatBeraturan"
             elif (value == "Segi empat layang-layang"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_layanglayang.jpg"
+                self.choosenShape = "layangLayang"
             elif (value == "Segi empat trapesium"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium.jpg"
+                self.choosenShape = "trapesium"
             elif (value == "Segi empat trapesium sama kaki"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium_kaki.jpg"
+                self.choosenShape = "trapesiumSamaKaki"
             elif (value == "Segi empat trapesium rata kiri"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium_kiri.jpg"
+                self.choosenShape = "trapesiumRataKiri"
             elif (value == "Segi empat trapesium rata kanan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium_kanan.jpg"
+                self.choosenShape = "trapesiumRataKanan"
             elif (value == "Segi lima sembarang"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segilima_sembarang.jpg"
+                self.choosenShape = "segilima"
             elif (value == "Segi lima beraturan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segilima_beraturan.jpg"
+                self.choosenShape = "segilimaSamaSisi"
             elif (value == "Segi enam sembarang"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segienam_sembarang.jpg"
+                self.choosenShape = "segienam"
             elif (value == "Segi enam beraturan"):
                 self.p = "D:/Documents/GitHub/Shape-Recognition/img/segienam_beraturan.jpg"
+                self.choosenShape = "segienamSamaSisi"
 
             self.shape = Image.open(self.p)
             self.tkshape = ImageTk.PhotoImage(self.shape)
@@ -253,10 +274,21 @@ class FrontEnd(object):
         self.frameMatchedRules = Frame(window, width=400, height=185, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
         self.frameMatchedRules.pack()
         self.frameMatchedRules.place(relx=0.32, rely = 0.715)
-    
+
+        if ('self.showResult' in globals()):
+            self.showResult.destroy()
+            self.frameDetectionResult.destroy()
+            self.sResult.destroy()
+            
+        self.frameDetectionResult = Frame(window,width=400, height=185, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
+        self.frameDetectionResult.pack()
+        self.frameDetectionResult.place(relx=0.62, rely = 0.715)
+
     def Check(self):
-        self.matchedRules = bg.matchedRules()
-        self.matchedFacts = bg.matchedFacts()
+        self.result = False
+        KBS.inferenceEngine("BFS", self.choosenShape)
+        self.shapeRules = KBS.allRules
+        self.shapeFacts = KBS.facts
 
         self.scrollRules = Scrollbar(self.frameMatchedRules)
         self.scrollFacts = Scrollbar(self.frameMatchedFacts)
@@ -274,30 +306,41 @@ class FrontEnd(object):
         self.txtRules.config(yscrollcommand = self.scrollRules.set)
         self.txtFacts.config(yscrollcommand = self.scrollFacts.set)
 
-        for x in self.matchedRules:
+        for x in self.shapeRules:
             self.txtRules.insert(END, x + '\n')
 
-        for x in self.matchedFacts:
+        for x in self.shapeFacts:
             self.txtFacts.insert(END, x + '\n')
+        
+        if(self.result):
+            self.pResult = "D:/Documents/GitHub/Shape-Recognition/img/yes.jpg"
+        else:
+            self.pResult = "D:/Documents/GitHub/Shape-Recognition/img/no.jpg"
+        
+        self.sResult = Image.open(self.pResult)
+        self.tkResult = ImageTk.PhotoImage(self.sResult)
+        self.showResult = Label(self.frameDetectionResult, image = self.tkResult)
+        self.showResult.image = self.tkResult
+        self.showResult.pack()
 
     def ShowAllRules(self):
-        self.allRules = bg.matchedRules()
+        self.allRules = KBS.rules
 
         self.windowRules = Toplevel()
         self.windowRules.title("All Rules")
-        self.windowRules.geometry("600x350")
+        self.windowRules.geometry("800x350")
         self.button = Button(self.windowRules, text="Dismiss", command=self.windowRules.destroy)
         self.button.pack()
 
         self.scrollAllRules = Scrollbar(self.windowRules)
         self.scrollAllRules.pack(side = RIGHT, fill = Y)
-        self.txtAllRules = Text(self.windowRules, width=80, height=30)
+        self.txtAllRules = Text(self.windowRules, width=120, height=30)
         self.txtAllRules.pack(side = LEFT, fill = Y)
         self.scrollAllRules.config(command = self.txtAllRules.yview)
         self.txtAllRules.config(yscrollcommand = self.scrollAllRules.set)
 
         for x in self.allRules:
-            self.txtAllRules.insert(END, x + '\n')
+            self.txtAllRules.insert(END, 'IF ' + x + ' THEN ' + self.allRules[x] + '\n')
     
     def ShowAllFacts(self):
         self.allFacts = bg.matchedFacts()
@@ -318,29 +361,10 @@ class FrontEnd(object):
         for x in self.allFacts:
             self.txtAllFacts.insert(END, x + '\n')
 
-
-# class AutoScrollbar(Scrollbar):
-#     # a scrollbar that hides itself if it's not needed.  only
-#     # works if you use the grid geometry manager.
-#     def set(self, lo, hi):
-#         if float(lo) <= 0.0 and float(hi) >= 1.0:
-#             # grid_remove is currently missing from Tkinter!
-#             self.tk.call("grid", "remove", self)
-#         else:
-#             self.grid()
-#         Scrollbar.set(self, lo, hi)
-#     def pack(self, **kw):
-#         raise TclError, "cannot use pack with this widget"
-#     def place(self, **kw):
-#         raise TclError, "cannot use place with this widget"
-
 window = Tk()
 window.title("BADOOR'S YALLA SHAPE RECOGNITION")
 window.configure(background = "gray10")
 window.geometry("1366x786")
-# scrollbar = Scrollbar(window)
-# scrollbar.pack(side = RIGHT, fill = Y)
-# scrollbar.config(command = window.yview)
 
 play = FrontEnd(window)
 

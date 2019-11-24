@@ -1,4 +1,5 @@
 import itertools 
+# import GUI
 
 global rules
 global facts 
@@ -96,6 +97,8 @@ def inferenceEngine(tipe, shape):
     global hitRules
     global allRules
 
+    print(shape)
+
     if(tipe == "DFS"):
         # inisialisasi proses
         factList = generatePatternFacts(facts)
@@ -170,6 +173,8 @@ def inferenceEngine(tipe, shape):
         return("Tidak ada tipe")
 
 # testing
-print(inferenceEngine("BFS", "segitigaTumpul"))
-print(allRules)
-print(facts)
+# print(inferenceEngine("BFS", "segitigaLancip"))
+# print(allRules)
+# print(facts)
+# # for x in rules:
+#     print (x, "=>", rules[x])
