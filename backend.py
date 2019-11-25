@@ -1,2 +1,0 @@
-import clips
-import GUI

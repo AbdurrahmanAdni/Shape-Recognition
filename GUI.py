@@ -14,39 +14,15 @@ global allRules
 global superAllRules
 global superAllFacts
 global outputFact
-global contours
 global sourcePath
+
+sourcePath = ""
 
 
 ##### IMPLEMENTASI IMAGE PREPROCESSING #########
 
 #Variabel keluaran dari program ini. Berisi Array of fakta
 outputFact = []
-
-def imageProcessing():
-    global contours
-    global sourcePath
-
-    #Dapatkan image
-    path = sourcePath
-    img = cv2.imread(path)
-
-    #Ubah image color menjadi abu
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    #Singkirikan Gaussian Noise
-    blur = cv2.GaussianBlur(gray, (3,3), 0)
-
-    #Dapatkan sisi dari edges
-    edges = cv2.Canny(gray, 50, 150)
-    #edges2 = cv2.Canny(blur, 50, 150, apertureSize = 3)
-
-    #Aplikasikan inverse binary untuk mendapatkan hasil yang lebih baik
-    thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 205, 1)
-    #thresh2 = cv2.adaptiveThreshold(edges, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 205, 1)
-
-    #Ambil kontur image
-    contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
 #Fungsi untuk mendapatkan sudut
 def getAngle(a, b, c):
@@ -72,7 +48,7 @@ def getFaktaSudut(a):
 
 def getsisiSamaPanjang(myList):
     counter = 0
-    combList = []
+    # combList = []
     for L in range(0, len(myList)+1):
         for subset in itertools.combinations(myList, L):
             if(len(subset) == 2) :
@@ -83,15 +59,19 @@ def getsisiSamaPanjang(myList):
         return "pasangSisiSamaPanjang = 2"
     elif (counter < 2) :
         return "pasangSisiSamaPanjang < 2"
+    else:
+        return "/"
 
 def getSudutLancip(a):
     if ((a > 58) and (a < 62)):
         return "sudutTerbesar > 58 sudutTerbesar < 62"
+    else:
+        return "/"
 
 def isSegilimaSamaSisi(a, myList):
     if (a == 5) :
         counter = 0
-        combList = []
+        # combList = []
         for L in range(0, len(myList)+1):
             for subset in itertools.combinations(myList, L):
                 if(len(subset) == 2) :
@@ -108,7 +88,7 @@ def isSegilimaSamaSisi(a, myList):
 def isSegienamSamaSisi(a, myList):
     if (a == 6):
         counter = 0
-        combList = []
+        # combList = []
         for L in range(0, len(myList)+1):
             for subset in itertools.combinations(myList, L):
                 if(len(subset) == 2) :
@@ -124,6 +104,24 @@ def isSegienamSamaSisi(a, myList):
 
 def returnAllFact():
     global outputFact
+    global sourcePath
+
+    #Dapatkan image
+    path = sourcePath
+    img = cv2.imread(path)
+
+    #Ubah image color menjadi abu
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    #Singkirikan Gaussian Noise
+    blur = cv2.GaussianBlur(gray, (3,3), 0)
+
+    #Aplikasikan inverse binary untuk mendapatkan hasil yang lebih baik
+    thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 205, 1)
+    #thresh2 = cv2.adaptiveThreshold(edges, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 205, 1)
+
+    #Ambil kontur image
+    contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
     for contour in contours:
         approx = cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour, True), True)
@@ -431,61 +429,61 @@ class FrontEnd(object):
 
         if(value != "Select shape"):
             if(value == "Segitiga sama kaki"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_kaki.jpg"
+                self.p = "./img/segitiga_kaki.jpg"
                 self.choosenShape = "segitigaSamaKaki"
             elif (value == "Segitiga sama kaki lancip"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_kaki_lancip.jpg"
+                self.p = "./img/segitiga_kaki_lancip.jpg"
                 self.choosenShape = "segitigaSamaKakiLancip"
             elif (value == "Segitiga sama kaki siku-siku"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_kaki_siku.jpg"
+                self.p = "./img/segitiga_kaki_siku.jpg"
                 self.choosenShape = "segitigaSamaKakiSiku"
             elif (value == "Segitiga sama kaki tumpul"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_kaki_tumpul.jpg"
+                self.p = "./img/segitiga_kaki_tumpul.jpg"
                 self.choosenShape = "segitigaSamaKakiTumpul"
             elif (value == "Segitiga lancip"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_lancip.jpg"
+                self.p = "./img/segitiga_lancip.jpg"
                 self.choosenShape = "segitigaLancip"
             elif (value == "Segitiga sama sisi"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_sisi.jpg"
+                self.p = "./img/segitiga_sisi.jpg"
                 self.choosenShape = "segitigaSamaSisi"
             elif (value == "Segitiga tumpul"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_tumpul.jpg"
+                self.p = "./img/segitiga_tumpul.jpg"
                 self.choosenShape = "segitigaTumpul"
             elif (value == "Segitiga lancip"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segitiga_lancip.jpg"
+                self.p = "./img/segitiga_lancip.jpg"
                 self.choosenShape = "segitigaLancip"
             elif (value == "Segi empat jajar genjang"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_jajargenjang.jpg"
+                self.p = "./img/segiempat_jajargenjang.jpg"
                 self.choosenShape = "jajaranGenjang"
             elif (value == "Segi empat beraturan"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_beraturan.jpg"
+                self.p = "./img/segiempat_beraturan.jpg"
                 self.choosenShape = "segiempatBeraturan"
             elif (value == "Segi empat layang-layang"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_layanglayang.jpg"
+                self.p = "./img/segiempat_layanglayang.jpg"
                 self.choosenShape = "layangLayang"
             elif (value == "Segi empat trapesium"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium.jpg"
+                self.p = "./img/segiempat_trapesium.jpg"
                 self.choosenShape = "trapesium"
             elif (value == "Segi empat trapesium sama kaki"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium_kaki.jpg"
+                self.p = "./img/segiempat_trapesium_kaki.jpg"
                 self.choosenShape = "trapesiumSamaKaki"
             elif (value == "Segi empat trapesium rata kiri"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium_kiri.jpg"
+                self.p = "./img/segiempat_trapesium_kiri.jpg"
                 self.choosenShape = "trapesiumRataKiri"
             elif (value == "Segi empat trapesium rata kanan"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segiempat_trapesium_kanan.jpg"
+                self.p = "./img/segiempat_trapesium_kanan.jpg"
                 self.choosenShape = "trapesiumRataKanan"
             elif (value == "Segi lima sembarang"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segilima_sembarang.jpg"
+                self.p = "./img/segilima_sembarang.jpg"
                 self.choosenShape = "segilima"
             elif (value == "Segi lima beraturan"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segilima_beraturan.jpg"
+                self.p = "./img/segilima_beraturan.jpg"
                 self.choosenShape = "segilimaSamaSisi"
             elif (value == "Segi enam sembarang"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segienam_sembarang.jpg"
+                self.p = "./img/segienam_sembarang.jpg"
                 self.choosenShape = "segienam"
             elif (value == "Segi enam beraturan"):
-                self.p = "D:/Documents/GitHub/Shape-Recognition/img/segienam_beraturan.jpg"
+                self.p = "./img/segienam_beraturan.jpg"
                 self.choosenShape = "segienamSamaSisi"
             
             sourcePath = self.choosenShape
@@ -661,7 +659,6 @@ class FrontEnd(object):
         global outputFact
 
         self.result = False
-        imageProcessing()
         returnAllFact()
         print("INI CHOOSEN SHAPE ", self.choosenShape, '\n')
         print("INI OUTPUT FACT", outputFact)
@@ -695,9 +692,9 @@ class FrontEnd(object):
             self.txtFacts.insert(END, x + '\n')
         
         if(self.result):
-            self.pResult = "D:/Documents/GitHub/Shape-Recognition/img/yes.jpg"
+            self.pResult = "./img/yes.jpg"
         else:
-            self.pResult = "D:/Documents/GitHub/Shape-Recognition/img/no.jpg"
+            self.pResult = "./img/no.jpg"
         
         self.sResult = Image.open(self.pResult)
         self.tkResult = ImageTk.PhotoImage(self.sResult)

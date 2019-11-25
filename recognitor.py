@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 import itertools
 import math
-import GUI
 
 global outputFact
 
@@ -10,7 +9,7 @@ global outputFact
 outputFact = []
 
 #Dapatkan image
-path = GUI.sourcePath
+path = "./img/shapes2.jpg"
 img = cv2.imread(path)
 
 #Ubah image color menjadi abu
@@ -65,10 +64,14 @@ def getsisiSamaPanjang(myList):
         return "pasangSisiSamaPanjang = 2"
     elif (counter < 2) :
         return "pasangSisiSamaPanjang < 2"
+    else:
+        return "/"
 
 def getSudutLancip(a):
     if ((a > 58) and (a < 62)):
         return "sudutTerbesar > 58 sudutTerbesar < 62"
+    else:
+        return "/"
 
 def isSegilimaSamaSisi(a, myList):
     if (a == 5) :
@@ -155,6 +158,8 @@ for contour in contours:
     shape.append(len(approx))
     shape.append(sudut)
     shape.append(panjang)
+    print(sudut)
+    print(sudut[0])
 
     fakta.append(getFaktaSisi(len(approx)))
     fakta.append(getFaktaSudut(sudut[0]))
@@ -164,6 +169,8 @@ for contour in contours:
     fakta.append(isSegienamSamaSisi(len(approx), panjang))
     
     outputFact.append(fakta)
+
+# print(outputFact)
 
 
 #Show image
