@@ -38,13 +38,16 @@ def getDistance(a, b):
 def getFaktaSisi(a):
     return "sisi = " + str(a)
 
+def getJumlahSudut(a):
+    return "sudut = " + str(a)
+
 def getFaktaSudut(a):
     if (a < 88) :
         return "sudutTerbesar < 88"
     elif (a > 92) :
         return "sudutTerbesar < 92"
     else :
-        return "sudutTerbesar >= 88 sudutTerbesar =< 92"
+        return "sudutTerbesar >= 88 sudutTerbesar <= 92"
 
 def getsisiSamaPanjang(myList):
     counter = 0
@@ -64,9 +67,18 @@ def getsisiSamaPanjang(myList):
 
 def getSudutLancip(a):
     if ((a > 58) and (a < 62)):
-        return "sudutTerbesar > 58 sudutTerbesar < 62"
+        return "sudutTerbesar >= 58 sudutTerbesar <= 62"
     else:
         return "/"
+
+def getIsLayang(a,b,c,d):
+    diagonal1 = math.sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+    diagonal2 = math.sqrt((d[0] - c[0])**2 + (d[1] - c[1])**2)
+
+    if (diagonal1 == diagonal2):
+        return "pasangSisi = sama"
+    else :
+        return "pasangSisi != sama"
 
 def isSegilimaSamaSisi(a, myList):
     if (a == 5) :
@@ -174,12 +186,22 @@ def returnAllFact():
         shape.append(sudut)
         shape.append(panjang)
 
+        
         fakta.append(getFaktaSisi(len(approx)))
+        fakta.append(getJumlahSudut(len(approx)))
         fakta.append(getFaktaSudut(sudut[0]))
-        fakta.append(getsisiSamaPanjang(panjang))
-        fakta.append(getSudutLancip(sudut[0]))
-        fakta.append(isSegilimaSamaSisi(len(approx), panjang))
-        fakta.append(isSegienamSamaSisi(len(approx), panjang))
+
+        if(getsisiSamaPanjang(panjang) != "/"):
+            fakta.append(getsisiSamaPanjang(panjang))
+        
+        if(getSudutLancip(sudut[0]) != "/"):
+            fakta.append(getSudutLancip(sudut[0]))
+        
+        if(isSegilimaSamaSisi(len(approx), panjang) != "/"):
+            fakta.append(isSegilimaSamaSisi(len(approx), panjang))
+        
+        if(isSegienamSamaSisi(len(approx), panjang) != "/"):
+            fakta.append(isSegienamSamaSisi(len(approx), panjang))
         
         outputFact.append(fakta)
 
@@ -197,7 +219,7 @@ rules = {
 
     "segitiga sudutTerbesar < 88 " : "segitigaLancip",
     "segitiga sudutTerbesar > 92 " : "segitigaTumpul",
-    "segitiga sudutTerbesar >= 88 sudutTerbesar <= 91 " : "segitigaSiku",
+    "segitiga sudutTerbesar >= 88 sudutTerbesar <= 92 " : "segitigaSiku",
 
     "segitiga sisiSamaPanjang = 2  " : "segitigaSamaKaki",
     "segitigaSamaKaki segitigaLancip  " : "segitigaSamaKakiLancip",
@@ -211,7 +233,7 @@ rules = {
 
     "jajaranGenjang pasangSisi = sama " : "segiempatBeraturan",
     "jajaranGenjang pasangSisi != sama " : "layangLayang",
-    "trapesium pasangSisiSamaPanjang = 1 " : "trapesiumSamaKaki",
+    "trapesium pasangSisiSamaPanjang < 2 " : "trapesiumSamaKaki",
     "trapesium sudut90 = 2 " : "trapesiumRata",
 
     "trapesiumRata posisi90 = kiri " : "trapesiumRataKiri",
@@ -280,8 +302,6 @@ def inferenceEngine(tipe, shape):
     global hitRules
     global allRules
 
-    print(shape)
-
     if(tipe == "DFS"):
         # inisialisasi proses
         factList = generatePatternFacts(facts)
@@ -310,6 +330,9 @@ def inferenceEngine(tipe, shape):
             # break proses jika sudah ditemukan
             if(shape in facts):
                 del hitRules[0 : len(hitRules)]
+
+        print(facts)
+        print(allRules)
 
         if(len(hitRules) == 0):
             if shape in facts:
@@ -365,10 +388,10 @@ def runner(allShape, tipe, shapeCheck):
 
     for shape in allShape:
         facts.extend(shape)
-        inferenceEngine(tipe, shapeCheck)
-        print(inferenceEngine(tipe, shape))
-        superAllFacts.append(facts)
-        superAllRules.append(allRules)
+        if(len(facts[0]) != 0):
+            inferenceEngine(tipe, shapeCheck)
+            superAllFacts.append(facts)
+            superAllRules.append(allRules)
 
 
 ######## GUI ########
@@ -402,11 +425,13 @@ class FrontEnd(object):
         self.Layout()
     
     def BrowseImage(self):
+        global sourcePath
         w = 500
         h = 375
         self.path = filedialog.askopenfilename(title = "Select image",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
         self.img = Image.open(self.path)
         self.imageW, self.imageH = self.img.size
+        sourcePath = self.path
 
         if (self.imageW > self.imageH):
             self.newImgW = w
@@ -424,7 +449,7 @@ class FrontEnd(object):
         self.myvar.pack()
 
     def ShowShape(self):
-        global sourcePath
+        sourcePath = ""
         value = self.var.get()
 
         if(value != "Select shape"):
@@ -660,37 +685,41 @@ class FrontEnd(object):
 
         self.result = False
         returnAllFact()
-        print("INI CHOOSEN SHAPE ", self.choosenShape, '\n')
-        print("INI OUTPUT FACT", outputFact)
-        runner(outputFact, "BFS", self.choosenShape)
-        # KBS.runner(reg.outputFact, "BFS", self.choosenShape)
-        self.shapeRules = []
-        self.shapeRules.extend(superAllRules)
-        print(superAllRules)
-        self.shapeFacts = superAllFacts
+        runner(outputFact, "DFS", self.choosenShape)
+
 
         self.scrollRules = Scrollbar(self.frameMatchedRules)
-        self.scrollFacts = Scrollbar(self.frameMatchedFacts)
         self.scrollRules.pack(side = RIGHT, fill = Y)
+        self.scrollFacts = Scrollbar(self.frameMatchedFacts)
         self.scrollFacts.pack(side = RIGHT, fill = Y)
 
-        self.txtRules = Text(self.frameMatchedRules, width=46, height=11)
-        self.txtFacts = Text(self.frameMatchedFacts, width=46, height=11)
-        self.txtRules.pack(side = LEFT, fill = Y)
-        self.txtFacts.pack(side = LEFT, fill = Y)
+        i = 1
+        for allRules in superAllRules:
+            self.shapeRules = allRules
+            # string = 'Shape ' + str(i)  + '\n'
+            # self.shapeRules.insert(END, string)
+            i += 1
+            for x in self.shapeRules:
+                self.txtRules = Text(self.frameMatchedRules, width=46, height=11)
+                self.txtRules.pack(side = LEFT, fill = Y)
+                self.txtRules.config(yscrollcommand = self.scrollRules.set)
+                self.txtRules.insert(END, x + "\n")
+                self.scrollRules.config(command = self.txtRules.yview)
 
-        self.scrollRules.config(command = self.txtRules.yview)
-        self.scrollFacts.config(command = self.txtFacts.yview)
+        i = 1
+        for allFacts in superAllFacts:
+            self.shapeFacts = allFacts
+            # string = 'Shape ' + str(i)  + '\n'
+            # self.shapeFacts.insert(END, string)
+            i += 1
+            for x in self.shapeFacts:
+                self.txtFacts = Text(self.frameMatchedFacts, width=46, height=11)
+                self.txtFacts.config(yscrollcommand = self.scrollFacts.set)
+                self.txtFacts.pack(side = LEFT, fill = Y)
+                self.txtFacts.insert(END, x + '\n')
+                self.scrollFacts.config(command = self.txtFacts.yview)
 
-        self.txtRules.config(yscrollcommand = self.scrollRules.set)
-        self.txtFacts.config(yscrollcommand = self.scrollFacts.set)
-
-        for x in self.shapeRules:
-            self.txtRules.insert(END, x + '\n')
-
-        for x in self.shapeFacts:
-            self.txtFacts.insert(END, x + '\n')
-        
+            
         if(self.result):
             self.pResult = "./img/yes.jpg"
         else:
