@@ -51,6 +51,30 @@ def getFaktaSudut(a):
     else :
         return "sudutTerbesar >= 88 sudutTerbesar =< 92"
 
+def isTrapesiumRata(myList):
+    counter = 0
+    for i in range(0, len(myList)):
+        if ((myList[i] <= 92) and (myList[i] >= 88)) :
+            counter = counter + 1
+    if counter == 2 :
+        return "sudut90 = 2"
+    else :
+        return "/"
+
+def isTrapesiumRataKiri(myList):
+    if ((myList[0] <= 92) and (myList[0] >= 88)) :
+        if ((myList[3] <= 92) and (myList[3] >= 88)) :
+            return "posisi90 = kiri"
+        else :
+            return "/"
+    elif ((myList[1] <= 92) and (myList[1] >= 88)) :
+            if ((myList[2] <= 92) and (myList[2] >= 88)) :
+                return "posisi90 = kanan"
+            else :
+                return "/"
+    else :
+        return "/"
+
 def getsisiSamaPanjang(myList):
     counter = 0
     combList = []
@@ -133,12 +157,17 @@ for contour in contours:
         for i in range (3) :
             sudut.append(getAngle(approx[i % 3][0], approx[(i+1) % 3][0], approx[(i+2) % 3][0]))
             panjang.append(getDistance(approx[i][0], approx[(i+1)%3][0]))
+        print(sudut)
           
     elif len(approx) == 4 :
         cv2.putText(gray, "Segiempat", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.40, (0, 0, 0), 1) 
         for i in range (4) :
             sudut.append(getAngle(approx[i % 4][0], approx[(i+1) % 4][0], approx[(i+2) % 4][0]))
             panjang.append(getDistance(approx[i][0], approx[(i+1)%4][0]))
+        fakta.append(isTrapesiumRata(sudut))
+        
+        if (isTrapesiumRata(sudut)) != "/" :
+            fakta.append(isTrapesiumRataKiri(sudut))
 
     elif len(approx) == 5 :
         cv2.putText(gray, "Pentagon", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.40, (0, 0, 0), 1)
@@ -158,8 +187,6 @@ for contour in contours:
     shape.append(len(approx))
     shape.append(sudut)
     shape.append(panjang)
-    print(sudut)
-    print(sudut[0])
 
     fakta.append(getFaktaSisi(len(approx)))
     fakta.append(getFaktaSudut(sudut[0]))
