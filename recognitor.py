@@ -70,33 +70,39 @@ def getSudutLancip(a):
     if ((a > 58) and (a < 62)):
         return "sudutTerbesar > 58 sudutTerbesar < 62"
 
-def isSegilimaSamaSisi(myList):
-    counter = 0
-    combList = []
-    for L in range(0, len(myList)+1):
-        for subset in itertools.combinations(myList, L):
-            if(len(subset) == 2) :
-                if (abs(subset[0] - subset[1]) <=2) :
-                    counter = counter + 1
-    
-    if (counter == 5) :
-        return "sisiSamaPanjang = 5"
+def isSegilimaSamaSisi(a, myList):
+    if (a == 5) :
+        counter = 0
+        combList = []
+        for L in range(0, len(myList)+1):
+            for subset in itertools.combinations(myList, L):
+                if(len(subset) == 2) :
+                    if (abs(subset[0] - subset[1]) <=2) :
+                        counter = counter + 1
+        
+        if (counter == 5) :
+            return "sisiSamaPanjang = 5"
+        else :
+            return "/"
     else :
-        return "false"
+        return "/"
 
-def isSegienamSamaSisi(myList):
-    counter = 0
-    combList = []
-    for L in range(0, len(myList)+1):
-        for subset in itertools.combinations(myList, L):
-            if(len(subset) == 2) :
-                if (abs(subset[0] - subset[1]) <=2) :
-                    counter = counter + 1
-    
-    if (counter == 6) :
-        return "sisiSamaPanjang = 6"
+def isSegienamSamaSisi(a, myList):
+    if (a == 6):
+        counter = 0
+        combList = []
+        for L in range(0, len(myList)+1):
+            for subset in itertools.combinations(myList, L):
+                if(len(subset) == 2) :
+                    if (abs(subset[0] - subset[1]) <=2) :
+                        counter = counter + 1
+        
+        if (counter == 6) :
+            return "sisiSamaPanjang = 6"
+        else :
+            return "/"
     else :
-        return "false"
+        return "/"
 
 
 for contour in contours:
@@ -154,8 +160,8 @@ for contour in contours:
     fakta.append(getFaktaSudut(sudut[0]))
     fakta.append(getsisiSamaPanjang(panjang))
     fakta.append(getSudutLancip(sudut[0]))
-    fakta.append(isSegilimaSamaSisi(panjang))
-    fakta.append(isSegienamSamaSisi(panjang))
+    fakta.append(isSegilimaSamaSisi(len(approx), panjang))
+    fakta.append(isSegienamSamaSisi(len(approx), panjang))
     
     outputFact.append(fakta)
 

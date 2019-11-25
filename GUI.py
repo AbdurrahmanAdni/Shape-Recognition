@@ -1,12 +1,379 @@
 from tkinter import *
 from PIL import Image, ImageTk
 from tkinter import filedialog
-import bridge as bg
-import KBS
-import recognitor as reg
+import itertools 
+import numpy as np
+import cv2
+import itertools
+import math
 
-
+global rules
+global facts 
+global hitRules
+global allRules
+global superAllRules
+global superAllFacts
+global outputFact
+global contours
 global sourcePath
+
+
+##### IMPLEMENTASI IMAGE PREPROCESSING #########
+
+#Variabel keluaran dari program ini. Berisi Array of fakta
+outputFact = []
+
+def imageProcessing():
+    global contours
+    global sourcePath
+
+    #Dapatkan image
+    path = sourcePath
+    img = cv2.imread(path)
+
+    #Ubah image color menjadi abu
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    #Singkirikan Gaussian Noise
+    blur = cv2.GaussianBlur(gray, (3,3), 0)
+
+    #Dapatkan sisi dari edges
+    edges = cv2.Canny(gray, 50, 150)
+    #edges2 = cv2.Canny(blur, 50, 150, apertureSize = 3)
+
+    #Aplikasikan inverse binary untuk mendapatkan hasil yang lebih baik
+    thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 205, 1)
+    #thresh2 = cv2.adaptiveThreshold(edges, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 205, 1)
+
+    #Ambil kontur image
+    contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+#Fungsi untuk mendapatkan sudut
+def getAngle(a, b, c):
+    ang = math.degrees(math.atan2(c[1]-b[1], c[0]-b[0]) - math.atan2(a[1]-b[1], a[0]-b[0]))
+    return ang + 360 if ang < 0 else ang
+
+#Fungsi untuk mendapatkan distance
+def getDistance(a, b):  
+    #  dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)  
+    dist = math.sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2) 
+    return dist  
+
+def getFaktaSisi(a):
+    return "sisi = " + str(a)
+
+def getFaktaSudut(a):
+    if (a < 88) :
+        return "sudutTerbesar < 88"
+    elif (a > 92) :
+        return "sudutTerbesar < 92"
+    else :
+        return "sudutTerbesar >= 88 sudutTerbesar =< 92"
+
+def getsisiSamaPanjang(myList):
+    counter = 0
+    combList = []
+    for L in range(0, len(myList)+1):
+        for subset in itertools.combinations(myList, L):
+            if(len(subset) == 2) :
+                if (abs(subset[0] - subset[1]) <=2) :
+                    counter = counter + 1
+    
+    if (counter == 2) :
+        return "pasangSisiSamaPanjang = 2"
+    elif (counter < 2) :
+        return "pasangSisiSamaPanjang < 2"
+
+def getSudutLancip(a):
+    if ((a > 58) and (a < 62)):
+        return "sudutTerbesar > 58 sudutTerbesar < 62"
+
+def isSegilimaSamaSisi(a, myList):
+    if (a == 5) :
+        counter = 0
+        combList = []
+        for L in range(0, len(myList)+1):
+            for subset in itertools.combinations(myList, L):
+                if(len(subset) == 2) :
+                    if (abs(subset[0] - subset[1]) <=2) :
+                        counter = counter + 1
+        
+        if (counter == 5) :
+            return "sisiSamaPanjang = 5"
+        else :
+            return "/"
+    else :
+        return "/"
+
+def isSegienamSamaSisi(a, myList):
+    if (a == 6):
+        counter = 0
+        combList = []
+        for L in range(0, len(myList)+1):
+            for subset in itertools.combinations(myList, L):
+                if(len(subset) == 2) :
+                    if (abs(subset[0] - subset[1]) <=2) :
+                        counter = counter + 1
+        
+        if (counter == 6) :
+            return "sisiSamaPanjang = 6"
+        else :
+            return "/"
+    else :
+        return "/"
+
+def returnAllFact():
+    global outputFact
+
+    for contour in contours:
+        approx = cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour, True), True)
+        cv2.drawContours(gray, [approx], 0, (0, 0, 0), 5)
+        
+        #Untuk mendapatkan posisi dari shape, berguna untuk penamaan
+        x = approx.ravel()[0]
+        y = approx.ravel()[1] - 5
+
+        #Sebuah array yang terdiri dari sisi, [sudut], dan [panjang sisi]
+        shape = []
+
+        #Array sudut
+        sudut = []
+
+        #Array panjang sisi
+        panjang = []
+
+        #Array fakta 1 shape
+        fakta = []
+
+        if len(approx) == 3 :
+            cv2.putText(gray, "Triangle", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0, 0, 0), 1)
+            for i in range (3) :
+                sudut.append(getAngle(approx[i % 3][0], approx[(i+1) % 3][0], approx[(i+2) % 3][0]))
+                panjang.append(getDistance(approx[i][0], approx[(i+1)%3][0]))
+            
+        elif len(approx) == 4 :
+            cv2.putText(gray, "Segiempat", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.40, (0, 0, 0), 1) 
+            for i in range (4) :
+                sudut.append(getAngle(approx[i % 4][0], approx[(i+1) % 4][0], approx[(i+2) % 4][0]))
+                panjang.append(getDistance(approx[i][0], approx[(i+1)%4][0]))
+
+        elif len(approx) == 5 :
+            cv2.putText(gray, "Pentagon", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.40, (0, 0, 0), 1)
+            for i in range (5) :
+                sudut.append(getAngle(approx[i % 5][0], approx[(i+1) % 5][0], approx[(i+2) % 5][0]))
+                panjang.append(getDistance(approx[i][0], approx[(i+1) %5][0]))
+
+        elif len(approx) == 6 :
+            cv2.putText(gray, "Heksagon", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.40, (0, 0, 0), 1)
+            for i in range (6) :
+                sudut.append(getAngle(approx[i % 6][0], approx[(i+1) % 6][0], approx[(i+2) % 6][0]))
+                panjang.append(getDistance(approx[i][0], approx[(i+1) %6][0]))
+        
+        sudut.sort(reverse=True)
+        panjang.sort(reverse=True)
+
+        shape.append(len(approx))
+        shape.append(sudut)
+        shape.append(panjang)
+
+        fakta.append(getFaktaSisi(len(approx)))
+        fakta.append(getFaktaSudut(sudut[0]))
+        fakta.append(getsisiSamaPanjang(panjang))
+        fakta.append(getSudutLancip(sudut[0]))
+        fakta.append(isSegilimaSamaSisi(len(approx), panjang))
+        fakta.append(isSegienamSamaSisi(len(approx), panjang))
+        
+        outputFact.append(fakta)
+
+
+##### IMPLEMENTASI KBS #####
+superAllFacts = []
+superAllRules = []
+
+# knowledge based
+rules = {
+    "sisi = 3 sudut = 3 " : "segitiga",
+    "sisi = 4 sudut = 4 " : "segiempat",
+    "sisi = 5 sudut = 5 " : "segilima",
+    "sisi = 6 sudut = 6 " : "segienam",
+
+    "segitiga sudutTerbesar < 88 " : "segitigaLancip",
+    "segitiga sudutTerbesar > 92 " : "segitigaTumpul",
+    "segitiga sudutTerbesar >= 88 sudutTerbesar <= 91 " : "segitigaSiku",
+
+    "segitiga sisiSamaPanjang = 2  " : "segitigaSamaKaki",
+    "segitigaSamaKaki segitigaLancip  " : "segitigaSamaKakiLancip",
+    "segitigaSamaKaki segitigaTumpul  " : "segitigaSamaKakiTumpul",
+    "segitigaSamaKaki segitigaSiku  " : "segitigaSamaKakiSiku",
+
+    "segitigaSamaKakiLancip sudutTerbesar >= 58 sudutTerbesar <= 62 " : "segitigaSamaSisi",
+
+    "segiempat pasangSisiSamaPanjang = 2 " : "jajaranGenjang",
+    "segiempat pasangSisiSamaPanjang < 2 " : "trapesium",
+
+    "jajaranGenjang pasangSisi = sama " : "segiempatBeraturan",
+    "jajaranGenjang pasangSisi != sama " : "layangLayang",
+    "trapesium pasangSisiSamaPanjang = 1 " : "trapesiumSamaKaki",
+    "trapesium sudut90 = 2 " : "trapesiumRata",
+
+    "trapesiumRata posisi90 = kiri " : "trapesiumRataKiri",
+    "trapesiumRata posisi90 = kanan " : "trapesiumRataKanan",
+
+    "segilima sisiSamaPanjang = 5 " : "segilimaSamaSisi",
+
+    "segienam sisiSamaPanjang = 6 " : "segienamSamaSisi",
+}
+
+# facts list
+facts = []
+
+# hit rules list
+hitRules = []
+
+# Untuk menyimpan rules yang telah diproses berdasarkan fakta (akan terurut berdasarkan type engine yang akan diproses)
+allRules = []
+
+
+# fungsi untuk mengembalikan list of facts yang sesuai rules
+def generatePatternFacts(myList):
+    # inisialisasi
+    patternFacts = []
+
+    for L in range(0, len(myList)+1):
+        for subset in itertools.permutations(myList, L):
+            if(len(subset) > 1):
+                string = ""
+                for i in subset:
+                    string = string + i + " " 
+                patternFacts.append(string)
+
+    return patternFacts 
+
+# fungsi untuk mendapatkan hit rules
+def getHitRules(ruleList, factList):
+    global allRules
+    global hitRules
+
+    tempRules = []
+
+    # mendapatkan semua LHS dari rules 
+    rules = ruleList.keys() 
+
+    # memasukan ke list hit rules yang baru jika fakta sesuai dengan rules dan belum pernah dibangkitkan
+    for rule in rules:
+        if rule in factList and rule not in allRules and rule not in hitRules:
+            tempRules.append(rule)
+    
+    return tempRules
+
+# fungsi untuk update facts
+def updateNewFacts(rule):
+    global facts
+    global rules
+
+    InsertedFact = rules.get(rule)
+    facts.append(InsertedFact)
+
+# Proses inference engine
+# Hanya ada 2 tipe yaitu secara DFS atau BFS
+def inferenceEngine(tipe, shape):
+    global rules
+    global facts 
+    global hitRules
+    global allRules
+
+    print(shape)
+
+    if(tipe == "DFS"):
+        # inisialisasi proses
+        factList = generatePatternFacts(facts)
+        hitRules = getHitRules(rules, factList)
+
+        while(len(hitRules) != 0):
+            # inisialisasi
+            tempRules = []
+
+            # update fakta baru berdasarkan rule pada antrian pertama
+            updateNewFacts(hitRules[0])
+            allRules.append(hitRules[0])
+
+            # delete rule pertama pada antrian hit rules
+            del hitRules[0]
+
+            factList = generatePatternFacts(facts)
+            tempRules = getHitRules(rules, factList)
+
+            # memasukan hasil hit rules terbaru ke depan antrian
+            temp = hitRules
+            del hitRules[0 : len(hitRules)]
+            tempRules.extend(temp)
+            hitRules = tempRules
+            
+            # break proses jika sudah ditemukan
+            if(shape in facts):
+                del hitRules[0 : len(hitRules)]
+
+        if(len(hitRules) == 0):
+            if shape in facts:
+                return True
+            else:
+                return False
+        else:
+            return True
+
+    elif(tipe == "BFS"):
+        # inisialisasi proses
+        factList = generatePatternFacts(facts)
+        hitRules = getHitRules(rules, factList)
+
+        while(len(hitRules) != 0):
+            # inisialisasi
+            tempRules = []
+
+            # update fakta baru berdasarkan rule pada antrian pertama
+            updateNewFacts(hitRules[0])
+            allRules.append(hitRules[0])
+
+            # delete rule pertama pada antrian hit rules 
+            del hitRules[0]
+
+            factList = generatePatternFacts(facts)
+            tempRules = getHitRules(rules, factList)
+
+            # memasukan hasil hit rules terbaru ke belakang antrian
+            hitRules.extend(tempRules)
+
+            # break proses jika sudah ditemukan
+            if(shape in facts):
+                del hitRules[0 : len(hitRules)]
+
+        if(len(hitRules) == 0):
+            if shape in facts:
+                return True
+            else:
+                return False
+        else:
+            return True
+    else:
+        return("Tidak ada tipe")
+
+def runner(allShape, tipe, shapeCheck):
+    global rules
+    global facts 
+    global hitRules
+    global allRules
+    global superAllRules
+    global superAllFacts
+
+    for shape in allShape:
+        facts.extend(shape)
+        inferenceEngine(tipe, shapeCheck)
+        print(inferenceEngine(tipe, shape))
+        superAllFacts.append(facts)
+        superAllRules.append(allRules)
+
+
+######## GUI ########
 
 class FrontEnd(object):
     def __init__(self, master):
@@ -174,7 +541,7 @@ class FrontEnd(object):
             "Segitiga lancip",
             "Segitiga sama sisi",
             "Segitiga tumpul",
-            "Segi empat jajar genjang"
+            "Segi empat jajar genjang",
             "Segi empat beraturan",
             "Segi empat layang-layang",
             "Segi empat trapesium",
@@ -291,10 +658,19 @@ class FrontEnd(object):
         self.frameDetectionResult.place(relx=0.62, rely = 0.715)
 
     def Check(self):
+        global outputFact
+
         self.result = False
-        KBS.runner(reg.outputFact, "BFS", self.choosenShape)
-        self.shapeRules = KBS.superAllRules
-        self.shapeFacts = KBS.superAllFacts
+        imageProcessing()
+        returnAllFact()
+        print("INI CHOOSEN SHAPE ", self.choosenShape, '\n')
+        print("INI OUTPUT FACT", outputFact)
+        runner(outputFact, "BFS", self.choosenShape)
+        # KBS.runner(reg.outputFact, "BFS", self.choosenShape)
+        self.shapeRules = []
+        self.shapeRules.extend(superAllRules)
+        print(superAllRules)
+        self.shapeFacts = superAllFacts
 
         self.scrollRules = Scrollbar(self.frameMatchedRules)
         self.scrollFacts = Scrollbar(self.frameMatchedFacts)
@@ -330,7 +706,7 @@ class FrontEnd(object):
         self.showResult.pack()
 
     def ShowAllRules(self):
-        self.allRules = KBS.rules
+        self.allRules = rules
 
         self.windowRules = Toplevel()
         self.windowRules.title("All Rules")
@@ -366,6 +742,7 @@ class FrontEnd(object):
 
         for x in self.allFacts:
             self.txtAllFacts.insert(END, x + '\n')
+
 
 window = Tk()
 window.title("BADOOR'S YALLA SHAPE RECOGNITION")

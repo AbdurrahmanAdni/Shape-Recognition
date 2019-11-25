@@ -2,6 +2,7 @@ import itertools
 import recognitor as reg
 # import GUI
 
+global allShape
 global rules
 global facts 
 global hitRules
@@ -11,6 +12,8 @@ global superAllFacts
 
 superAllFacts = []
 superAllRules = []
+allShape = []
+allShape.extend(reg.outputFact)
 
 # knowledge based
 rules = {
