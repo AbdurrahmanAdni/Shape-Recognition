@@ -711,6 +711,8 @@ class FrontEnd(object):
  
         for x in self.shapeRules:
             self.txtRules.insert(END, x + '\n')
+            if(x == self.shapeRules[len(self.shapeRules)-1]):
+                self.txtRules.insert(END, "DONE")
  
         for x in self.shapeFacts:
             self.txtFacts.insert(END, x + '\n')
