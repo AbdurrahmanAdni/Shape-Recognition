@@ -11,8 +11,6 @@ global rules
 global facts 
 global hitRules
 global allRules
-global superAllRules
-global superAllFacts
 global outputFact
 global sourcePath
 
@@ -58,7 +56,7 @@ def getsisiSamaPanjang(myList):
                 if (abs(subset[0] - subset[1]) <=2) :
                     counter = counter + 1
     
-    if (counter == 2) :
+    if (counter >= 2) :
         return "pasangSisiSamaPanjang = 2"
     elif (counter < 2) :
         return "pasangSisiSamaPanjang < 2"
@@ -75,7 +73,7 @@ def getIsLayang(a,b,c,d):
     diagonal1 = math.sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
     diagonal2 = math.sqrt((d[0] - c[0])**2 + (d[1] - c[1])**2)
 
-    if (diagonal1 == diagonal2):
+    if (abs(diagonal1 - diagonal2) <= 2):
         return "pasangSisi = sama"
     else :
         return "pasangSisi != sama"
@@ -167,6 +165,8 @@ def returnAllFact():
                 sudut.append(getAngle(approx[i % 4][0], approx[(i+1) % 4][0], approx[(i+2) % 4][0]))
                 panjang.append(getDistance(approx[i][0], approx[(i+1)%4][0]))
 
+                fakta.append(getIsLayang(approx[0][0], approx[1][0], approx[2][0], approx[3][0]))
+
         elif len(approx) == 5 :
             cv2.putText(gray, "Pentagon", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.40, (0, 0, 0), 1)
             for i in range (5) :
@@ -203,12 +203,11 @@ def returnAllFact():
         if(isSegienamSamaSisi(len(approx), panjang) != "/"):
             fakta.append(isSegienamSamaSisi(len(approx), panjang))
         
+        
         outputFact.append(fakta)
 
 
 ##### IMPLEMENTASI KBS #####
-superAllFacts = []
-superAllRules = []
 
 # knowledge based
 rules = {
@@ -217,24 +216,23 @@ rules = {
     "sisi = 5 sudut = 5 " : "segilima",
     "sisi = 6 sudut = 6 " : "segienam",
 
-    "segitiga sudutTerbesar < 88 " : "segitigaLancip",
-    "segitiga sudutTerbesar > 92 " : "segitigaTumpul",
-    "segitiga sudutTerbesar >= 88 sudutTerbesar <= 92 " : "segitigaSiku",
+    "sudutTerbesar < 88 segitiga " : "segitigaLancip",
+    "sudutTerbesar > 92 segitiga " : "segitigaTumpul",
+    "sudutTerbesar >= 88 sudutTerbesar <= 92  segitiga " : "segitigaSiku",
 
-    "segitiga sisiSamaPanjang = 2  " : "segitigaSamaKaki",
-    "segitigaSamaKaki segitigaLancip  " : "segitigaSamaKakiLancip",
-    "segitigaSamaKaki segitigaTumpul  " : "segitigaSamaKakiTumpul",
-    "segitigaSamaKaki segitigaSiku  " : "segitigaSamaKakiSiku",
+    "sisiSamaPanjang = 2 segitiga " : "segitigaSamaKaki",
+    "segitigaLancip segitigaSamaKaki " : "segitigaSamaKakiLancip",
+    "segitigaTumpul segitigaSamaKaki " : "segitigaSamaKakiTumpul",
+    "segitigaSiku segitigaSamaKaki " : "segitigaSamaKakiSiku",
+    "sudutTerbesar >= 58 sudutTerbesar <= 62 segitigaSamaKakiLancip " : "segitigaSamaSisi",
 
-    "segitigaSamaKakiLancip sudutTerbesar >= 58 sudutTerbesar <= 62 " : "segitigaSamaSisi",
+    "pasangSisiSamaPanjang = 2 segiempat " : "jajaranGenjang",
+    "pasangSisiSamaPanjang < 2 segiempat " : "trapesium",
 
-    "segiempat pasangSisiSamaPanjang = 2 " : "jajaranGenjang",
-    "segiempat pasangSisiSamaPanjang < 2 " : "trapesium",
-
-    "jajaranGenjang pasangSisi = sama " : "segiempatBeraturan",
-    "jajaranGenjang pasangSisi != sama " : "layangLayang",
-    "trapesium pasangSisiSamaPanjang < 2 " : "trapesiumSamaKaki",
-    "trapesium sudut90 = 2 " : "trapesiumRata",
+    "pasangSisi = sama jajaranGenjang " : "segiempatBeraturan",
+    "pasangSisi != sama jajaranGenjang " : "layangLayang",
+    "pasangSisiSamaPanjang < 2 trapesium " : "trapesiumSamaKaki",
+    "sudut90 = 2 trapesium " : "trapesiumRata",
 
     "trapesiumRata posisi90 = kiri " : "trapesiumRataKiri",
     "trapesiumRata posisi90 = kanan " : "trapesiumRataKanan",
@@ -247,7 +245,7 @@ rules = {
 # facts list
 facts = []
 
-# hit rules list
+# hit rules list untuk queue rules
 hitRules = []
 
 # Untuk menyimpan rules yang telah diproses berdasarkan fakta (akan terurut berdasarkan type engine yang akan diproses)
@@ -260,7 +258,7 @@ def generatePatternFacts(myList):
     patternFacts = []
 
     for L in range(0, len(myList)+1):
-        for subset in itertools.permutations(myList, L):
+        for subset in itertools.combinations(myList, L):
             if(len(subset) > 1):
                 string = ""
                 for i in subset:
@@ -294,6 +292,7 @@ def updateNewFacts(rule):
     InsertedFact = rules.get(rule)
     facts.append(InsertedFact)
 
+
 # Proses inference engine
 # Hanya ada 2 tipe yaitu secara DFS atau BFS
 def inferenceEngine(tipe, shape):
@@ -326,13 +325,11 @@ def inferenceEngine(tipe, shape):
             del hitRules[0 : len(hitRules)]
             tempRules.extend(temp)
             hitRules = tempRules
-            
+
+            print(facts)
             # break proses jika sudah ditemukan
             if(shape in facts):
-                del hitRules[0 : len(hitRules)]
-
-        print(facts)
-        print(allRules)
+                return True
 
         if(len(hitRules) == 0):
             if shape in facts:
@@ -378,21 +375,23 @@ def inferenceEngine(tipe, shape):
     else:
         return("Tidak ada tipe")
 
+# mengecek apakah shape yang dipilih ada pada gambar yang dipilih pengguna (shape yang dipilih merupakan subset dari kumpulan gambar)
 def runner(allShape, tipe, shapeCheck):
     global rules
     global facts 
     global hitRules
     global allRules
-    global superAllRules
-    global superAllFacts
 
     for shape in allShape:
         facts.extend(shape)
-        if(len(facts[0]) != 0):
-            inferenceEngine(tipe, shapeCheck)
-            superAllFacts.append(facts)
-            superAllRules.append(allRules)
-
+        if (len(facts) != 0):
+            check = inferenceEngine(tipe, shapeCheck)
+            if (check):
+                return True
+            else:
+                del facts[0 : len(facts)]
+    
+    return False
 
 ######## GUI ########
 
@@ -682,42 +681,39 @@ class FrontEnd(object):
 
     def Check(self):
         global outputFact
+        global allRules
+        global facts
 
+        # inisialisasi
+        self.shapeRules = []
+        self.shapeFacts = []
         self.result = False
+
         returnAllFact()
-        runner(outputFact, "DFS", self.choosenShape)
-
-
+        self.result = runner(outputFact, "DFS", self.choosenShape)
+        self.shapeFacts.extend(facts)
+        self.shapeRules.extend(allRules)
         self.scrollRules = Scrollbar(self.frameMatchedRules)
         self.scrollRules.pack(side = RIGHT, fill = Y)
         self.scrollFacts = Scrollbar(self.frameMatchedFacts)
         self.scrollFacts.pack(side = RIGHT, fill = Y)
 
-        i = 1
-        for allRules in superAllRules:
-            self.shapeRules = allRules
-            # string = 'Shape ' + str(i)  + '\n'
-            # self.shapeRules.insert(END, string)
-            i += 1
-            for x in self.shapeRules:
-                self.txtRules = Text(self.frameMatchedRules, width=46, height=11)
-                self.txtRules.pack(side = LEFT, fill = Y)
-                self.txtRules.config(yscrollcommand = self.scrollRules.set)
-                self.txtRules.insert(END, x + "\n")
-                self.scrollRules.config(command = self.txtRules.yview)
-
-        i = 1
-        for allFacts in superAllFacts:
-            self.shapeFacts = allFacts
-            # string = 'Shape ' + str(i)  + '\n'
-            # self.shapeFacts.insert(END, string)
-            i += 1
-            for x in self.shapeFacts:
-                self.txtFacts = Text(self.frameMatchedFacts, width=46, height=11)
-                self.txtFacts.config(yscrollcommand = self.scrollFacts.set)
-                self.txtFacts.pack(side = LEFT, fill = Y)
-                self.txtFacts.insert(END, x + '\n')
-                self.scrollFacts.config(command = self.txtFacts.yview)
+        self.txtRules = Text(self.frameMatchedRules, width=46, height=11)
+        self.txtFacts = Text(self.frameMatchedFacts, width=46, height=11)
+        self.txtRules.pack(side = LEFT, fill = Y)
+        self.txtFacts.pack(side = LEFT, fill = Y)
+ 
+        self.scrollRules.config(command = self.txtRules.yview)
+        self.scrollFacts.config(command = self.txtFacts.yview)
+ 
+        self.txtRules.config(yscrollcommand = self.scrollRules.set)
+        self.txtFacts.config(yscrollcommand = self.scrollFacts.set)
+ 
+        for x in self.shapeRules:
+            self.txtRules.insert(END, x + '\n')
+ 
+        for x in self.shapeFacts:
+            self.txtFacts.insert(END, x + '\n')
 
             
         if(self.result):
