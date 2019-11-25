@@ -170,7 +170,7 @@ for contour in contours:
     
     outputFact.append(fakta)
 
-# print(outputFact)
+print(outputFact)
 
 
 #Show image
