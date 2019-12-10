@@ -47,7 +47,7 @@ def getFaktaSudut(a):
     if (a < 88) :
         return "sudutTerbesar < 88"
     elif (a > 92) :
-        return "sudutTerbesar < 92"
+        return "sudutTerbesar > 92"
     else :
         return "sudutTerbesar >= 88 sudutTerbesar =< 92"
 
@@ -61,7 +61,7 @@ def isTrapesiumRata(myList):
     else :
         return "/"
 
-def isTrapesiumRataKiri(myList):
+def checkPosisiSikuSiku(myList):
     if ((myList[0] <= 92) and (myList[0] >= 88)) :
         if ((myList[3] <= 92) and (myList[3] >= 88)) :
             return "posisi90 = kiri"
@@ -77,12 +77,17 @@ def isTrapesiumRataKiri(myList):
 
 def getsisiSamaPanjang(myList):
     counter = 0
-    combList = []
-    for L in range(0, len(myList)+1):
-        for subset in itertools.combinations(myList, L):
-            if(len(subset) == 2) :
-                if (abs(subset[0] - subset[1]) <=2) :
-                    counter = counter + 1
+    # combList = []
+    # for L in range(0, len(myList)+1):
+    #     for subset in itertools.combinations(myList, L):
+    #         if(len(subset) == 2) :
+    #             if (abs(subset[0] - subset[1]) <=2) :
+    #                 counter = counter + 1
+
+    for i in range (len(myList)-1) :
+        for j in range (i+1, len(myList)) :
+            if (abs(myList[i] - myList[j]) <=2.5) :
+                counter = counter + 1
     
     if (counter == 2) :
         return "pasangSisiSamaPanjang = 2"

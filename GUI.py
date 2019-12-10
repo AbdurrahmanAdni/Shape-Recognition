@@ -43,7 +43,7 @@ def getFaktaSudut(a):
     if (a < 88) :
         return "sudutTerbesar < 88"
     elif (a > 92) :
-        return "sudutTerbesar < 92"
+        return "sudutTerbesar > 92"
     else :
         return "sudutTerbesar >= 88 sudutTerbesar <= 92"
 
@@ -53,7 +53,7 @@ def getsisiSamaPanjang(myList):
     for L in range(0, len(myList)+1):
         for subset in itertools.combinations(myList, L):
             if(len(subset) == 2) :
-                if (abs(subset[0] - subset[1]) <=2) :
+                if (abs(subset[0] - subset[1]) <=2.5) :
                     counter = counter + 1
     
     if (counter >= 2) :
@@ -78,6 +78,37 @@ def getIsLayang(a,b,c,d):
     else :
         return "pasangSisi != sama"
 
+def isTrapesiumRata(myList):
+    counter = 0
+    for i in range(0, len(myList)):
+        if ((myList[i] <= 92) and (myList[i] >= 88)) :
+            counter = counter + 1
+    if counter == 2 :
+        return "sudut90 = 2"
+    else :
+        return "/"
+
+def checkPosisiSikuSiku(myList):
+    # if ((myList[0] <= 92) and (myList[0] >= 88)) :
+    #     if ((myList[1] <= 92) and (myList[1] >= 88)) :
+    #         return "posisi90 = kiri"
+    #     else :
+    #         return "/"
+    # elif ((myList[2] <= 92) and (myList[2] >= 88)) :
+    #         if ((myList[3] <= 92) and (myList[3] >= 88)) :
+    #             return "posisi90 = kanan"
+    #         else :
+    #             return "/"
+
+    if ((myList[0] <= 92) and (myList[0] >= 88)) and ((myList[3] <= 92) and (myList[3] >= 88)) :
+        return "posisi90 = kiri"
+    elif ((myList[1] <= 92) and (myList[1] >= 88)) and ((myList[2] <= 92) and (myList[2] >= 88)) :
+        return "posisi90 = kanan"
+    elif ((myList[2] <= 92) and (myList[2] >= 88)) and ((myList[3] <= 92) and (myList[3] >= 88)) :
+        return "posisi90 = kanan"
+    else :
+        return "/"
+
 def isSegilimaSamaSisi(a, myList):
     if (a == 5) :
         counter = 0
@@ -85,10 +116,9 @@ def isSegilimaSamaSisi(a, myList):
         for L in range(0, len(myList)+1):
             for subset in itertools.combinations(myList, L):
                 if(len(subset) == 2) :
-                    if (abs(subset[0] - subset[1]) <=2) :
+                    if (abs(subset[0] - subset[1]) <=11) :
                         counter = counter + 1
-        
-        if (counter == 5) :
+        if (counter == 10) :
             return "sisiSamaPanjang = 5"
         else :
             return "/"
@@ -102,10 +132,10 @@ def isSegienamSamaSisi(a, myList):
         for L in range(0, len(myList)+1):
             for subset in itertools.combinations(myList, L):
                 if(len(subset) == 2) :
-                    if (abs(subset[0] - subset[1]) <=2) :
+                    if (abs(subset[0] - subset[1]) <=6) :
                         counter = counter + 1
         
-        if (counter == 6) :
+        if (counter == 15) :
             return "sisiSamaPanjang = 6"
         else :
             return "/"
@@ -166,43 +196,63 @@ def returnAllFact():
                 panjang.append(getDistance(approx[i][0], approx[(i+1)%4][0]))
 
                 fakta.append(getIsLayang(approx[0][0], approx[1][0], approx[2][0], approx[3][0]))
+            
+            if (isTrapesiumRata(sudut)) != "/" :
+                fakta.append(isTrapesiumRata(sudut))
+                fakta.append(checkPosisiSikuSiku(sudut))
 
         elif len(approx) == 5 :
             cv2.putText(gray, "Pentagon", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.40, (0, 0, 0), 1)
             for i in range (5) :
                 sudut.append(getAngle(approx[i % 5][0], approx[(i+1) % 5][0], approx[(i+2) % 5][0]))
                 panjang.append(getDistance(approx[i][0], approx[(i+1) %5][0]))
+    
+            if(isSegilimaSamaSisi(len(approx), panjang) != "/"):
+                fakta.append(isSegilimaSamaSisi(len(approx), panjang))
+    
 
         elif len(approx) == 6 :
             cv2.putText(gray, "Heksagon", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.40, (0, 0, 0), 1)
             for i in range (6) :
                 sudut.append(getAngle(approx[i % 6][0], approx[(i+1) % 6][0], approx[(i+2) % 6][0]))
                 panjang.append(getDistance(approx[i][0], approx[(i+1) %6][0]))
+                
+            if(isSegienamSamaSisi(len(approx), panjang) != "/"):
+                fakta.append(isSegienamSamaSisi(len(approx), panjang))
+            
         
+        print(sudut)
+        print(panjang)
         sudut.sort(reverse=True)
         panjang.sort(reverse=True)
+        #print(sudut)
+        #print(panjang)
 
         shape.append(len(approx))
         shape.append(sudut)
         shape.append(panjang)
 
-        
+        #print(sudut[0])
+
         fakta.append(getFaktaSisi(len(approx)))
         fakta.append(getJumlahSudut(len(approx)))
-        fakta.append(getFaktaSudut(sudut[0]))
+        
+        if (len(approx) < 5) :
+            fakta.append(getFaktaSudut(sudut[0]))
 
-        if(getsisiSamaPanjang(panjang) != "/"):
-            fakta.append(getsisiSamaPanjang(panjang))
-        
-        if(getSudutLancip(sudut[0]) != "/"):
-            fakta.append(getSudutLancip(sudut[0]))
-        
-        if(isSegilimaSamaSisi(len(approx), panjang) != "/"):
-            fakta.append(isSegilimaSamaSisi(len(approx), panjang))
-        
-        if(isSegienamSamaSisi(len(approx), panjang) != "/"):
-            fakta.append(isSegienamSamaSisi(len(approx), panjang))
-        
+            if(getsisiSamaPanjang(panjang) != "/"):
+                fakta.append(getsisiSamaPanjang(panjang))
+            
+            if(getSudutLancip(sudut[0]) != "/"):
+                fakta.append(getSudutLancip(sudut[0]))
+        #else :
+
+            # if(isSegilimaSamaSisi(len(approx), panjang) != "/"):
+            #     fakta.append(isSegilimaSamaSisi(len(approx), panjang))
+            
+            # if(isSegienamSamaSisi(len(approx), panjang) != "/"):
+            #     fakta.append(isSegienamSamaSisi(len(approx), panjang))
+            
         
         outputFact.append(fakta)
 
@@ -231,15 +281,16 @@ rules = {
 
     "pasangSisi = sama jajaranGenjang " : "segiempatBeraturan",
     "pasangSisi != sama jajaranGenjang " : "layangLayang",
-    "pasangSisiSamaPanjang < 2 trapesium " : "trapesiumSamaKaki",
     "sudut90 = 2 trapesium " : "trapesiumRata",
+    "pasangSisiSamaPanjang < 2 trapesium " : "trapesiumSamaKaki",
+    "sudut90 = 2 trapesiumSamaKaki " : "trapesiumRata",
 
-    "trapesiumRata posisi90 = kiri " : "trapesiumRataKiri",
-    "trapesiumRata posisi90 = kanan " : "trapesiumRataKanan",
+    "posisi90 = kiri trapesiumRata " : "trapesiumRataKiri",
+    "posisi90 = kanan trapesiumRata " : "trapesiumRataKanan",
 
-    "segilima sisiSamaPanjang = 5 " : "segilimaSamaSisi",
+    "sisiSamaPanjang = 5 segilima " : "segilimaSamaSisi",
 
-    "segienam sisiSamaPanjang = 6 " : "segienamSamaSisi",
+    "sisiSamaPanjang = 6 segienam " : "segienamSamaSisi",
 }
 
 # facts list
