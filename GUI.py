@@ -800,17 +800,20 @@ class FrontEnd(object):
             self.txtAllRules.insert(END, 'IF ' + x + ' THEN ' + self.allRules[x] + '\n')
     
     def ShowAllFacts(self):
-        self.allFacts = bg.matchedFacts()
+        self.allFacts = []
+        for x in outputFact:
+            for y in outputFact:
+                self.allFacts.append(y)
 
         self.windowFacts = Toplevel()
         self.windowFacts.title("All Facts")
-        self.windowFacts.geometry("600x350")
+        self.windowFacts.geometry("800x350")
         self.button = Button(self.windowFacts, text="Dismiss", command=self.windowFacts.destroy)
         self.button.pack()
 
         self.scrollAllFacts = Scrollbar(self.windowFacts)
         self.scrollAllFacts.pack(side = RIGHT, fill = Y)
-        self.txtAllFacts = Text(self.windowFacts, width=80, height=30)
+        self.txtAllFacts = Text(self.windowFacts, width=120, height=30)
         self.txtAllFacts.pack(side = LEFT, fill = Y)
         self.scrollAllFacts.config(command = self.txtAllFacts.yview)
         self.txtAllFacts.config(yscrollcommand = self.scrollAllFacts.set)
