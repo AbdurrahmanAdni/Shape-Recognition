@@ -759,7 +759,8 @@ class FrontEnd(object):
  
         self.txtRules.config(yscrollcommand = self.scrollRules.set)
         self.txtFacts.config(yscrollcommand = self.scrollFacts.set)
- 
+
+        # print("shaperules", self.shapeRules)
         for x in self.shapeRules:
             self.txtRules.insert(END, x + '\n')
             if(x == self.shapeRules[len(self.shapeRules)-1]):
@@ -795,14 +796,14 @@ class FrontEnd(object):
         self.txtAllRules.pack(side = LEFT, fill = Y)
         self.scrollAllRules.config(command = self.txtAllRules.yview)
         self.txtAllRules.config(yscrollcommand = self.scrollAllRules.set)
-
+        # print("halo", self.allRules)
         for x in self.allRules:
             self.txtAllRules.insert(END, 'IF ' + x + ' THEN ' + self.allRules[x] + '\n')
     
     def ShowAllFacts(self):
         self.allFacts = []
         for x in outputFact:
-            for y in outputFact:
+            for y in x:
                 self.allFacts.append(y)
 
         self.windowFacts = Toplevel()
@@ -818,6 +819,7 @@ class FrontEnd(object):
         self.scrollAllFacts.config(command = self.txtAllFacts.yview)
         self.txtAllFacts.config(yscrollcommand = self.scrollAllFacts.set)
 
+        # print("allfacts", self.allFacts)
         for x in self.allFacts:
             self.txtAllFacts.insert(END, x + '\n')
 
