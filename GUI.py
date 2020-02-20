@@ -11,6 +11,7 @@ global rules
 global facts 
 global hitRules
 global allRules
+global hitFacts
 global outputFact
 global sourcePath
 
@@ -225,14 +226,11 @@ def returnAllFact():
         print(panjang)
         sudut.sort(reverse=True)
         panjang.sort(reverse=True)
-        #print(sudut)
-        #print(panjang)
 
         shape.append(len(approx))
         shape.append(sudut)
         shape.append(panjang)
 
-        #print(sudut[0])
 
         fakta.append(getFaktaSisi(len(approx)))
         fakta.append(getJumlahSudut(len(approx)))
@@ -268,9 +266,11 @@ rules = {
 
     "sudutTerbesar < 88 segitiga " : "segitigaLancip",
     "sudutTerbesar > 92 segitiga " : "segitigaTumpul",
-    "sudutTerbesar >= 88 sudutTerbesar <= 92  segitiga " : "segitigaSiku",
+    "sudutTerbesar >= 88 sudutTerbesar <= 92 segitiga " : "segitigaSiku",
 
-    "sisiSamaPanjang = 2 segitiga " : "segitigaSamaKaki",
+    "pasangSisiSamaPanjang < 2 segitigaLancip " : "segitigaSamaKaki",
+    "pasangSisiSamaPanjang < 2 segitigaTumpul " : "segitigaSamaKaki",
+    "pasangSisiSamaPanjang < 2 segitigaSiku " : "segitigaSamaKaki",
     "segitigaLancip segitigaSamaKaki " : "segitigaSamaKakiLancip",
     "segitigaTumpul segitigaSamaKaki " : "segitigaSamaKakiTumpul",
     "segitigaSiku segitigaSamaKaki " : "segitigaSamaKakiSiku",
@@ -295,6 +295,7 @@ rules = {
 
 # facts list
 facts = []
+hitFacts = []
 
 # hit rules list untuk queue rules
 hitRules = []
@@ -377,7 +378,6 @@ def inferenceEngine(tipe, shape):
             tempRules.extend(temp)
             hitRules = tempRules
 
-            print(facts)
             # break proses jika sudah ditemukan
             if(shape in facts):
                 return True
@@ -430,6 +430,7 @@ def inferenceEngine(tipe, shape):
 def runner(allShape, tipe, shapeCheck):
     global rules
     global facts 
+    global hitFacts
     global hitRules
     global allRules
 
@@ -438,9 +439,11 @@ def runner(allShape, tipe, shapeCheck):
         if (len(facts) != 0):
             check = inferenceEngine(tipe, shapeCheck)
             if (check):
+                hitFacts.append(facts)
                 return True
             else:
-                del facts[0 : len(facts)]
+                hitFacts.append(facts)
+                # del facts[0 : len(facts)]
     
     return False
 
@@ -503,8 +506,11 @@ class FrontEnd(object):
         value = self.var.get()
 
         if(value != "Select shape"):
-            if(value == "Segitiga sama kaki"):
-                self.p = "./img/segitiga_kaki.jpg"
+            if(value == "Segitiga siku siku"):
+                self.p = "./img/segitiga_siku.jpg"
+                self.choosenShape = "segitigaSiku"
+            elif (value == "Segitiga sama kaki"):
+                self.p = "./img/segitiga_kaki_lancip.jpg"
                 self.choosenShape = "segitigaSamaKaki"
             elif (value == "Segitiga sama kaki lancip"):
                 self.p = "./img/segitiga_kaki_lancip.jpg"
@@ -607,6 +613,7 @@ class FrontEnd(object):
 
         self.shapeOptions = [
             "Select shape",
+            "Segitiga siku siku",
             "Segitiga sama kaki",
             "Segitiga sama kaki lancip",
             "Segitiga sama kaki siku-siku",
@@ -657,7 +664,7 @@ class FrontEnd(object):
         self.frameDetectionResult.pack()
         self.frameDetectionResult.place(relx=0.62, rely = 0.715)
 
-        self.ruleEditor = Button(window, width = 10, height = 1, text = "Rule Editor", fg = "AntiqueWhite1", bg = "grey10", font = ("Arial", 10))
+        self.ruleEditor = Button(window, width = 10, height = 1, text = "Rule Editor", fg = "AntiqueWhite1", bg = "grey10", font = ("Arial", 10), command = self.EditRules)
         self.ruleEditor.pack()
         self.ruleEditor.place(relx=0.92, rely = 0.716)
 
@@ -674,6 +681,18 @@ class FrontEnd(object):
         self.breset.place(relx=0.92, rely = 0.85)
     
     def ResetLayout(self):
+        global facts 
+        global hitRules
+        global allRules
+        global outputFact
+        global hitFacts
+
+        del hitRules[0 : len(hitRules)]
+        del facts[0 : len(facts)]
+        del hitFacts[0 : len(hitFacts)]
+        del allRules[0 : len(allRules)]
+        del outputFact[0 : len(outputFact)]
+
         if('self.myvar' in globals()):
             self.myvar.destroy()
             
@@ -704,15 +723,10 @@ class FrontEnd(object):
         self.okImage = Button(self.frameShape, width = 10, height = 1, text = "ok", fg = "SeaGreen1", bg = "grey10", font = ("Arial", 10), command = self.ShowShape)
         self.okImage.pack()
         self.okImage.place(relx=0.38, rely = 0.45)
-
-        if('self.matchedRules' in globals()):
-            self.scrollFacts.destroy()
-            self.scrollRules.destroy()
-            self.txtFacts.destroy()
-            self.txtRules.destroy()
         
         self.frameMatchedFacts.destroy()
         self.frameMatchedRules.destroy()
+        self.shapeRules = []
 
         self.frameMatchedFacts = Frame(window, width=400, height=185, bg="grey10", highlightbackground = "DarkOrchid3", highlightthickness = 2)
         self.frameMatchedFacts.pack()
@@ -734,6 +748,7 @@ class FrontEnd(object):
         global outputFact
         global allRules
         global facts
+        global hitFacts
 
         # inisialisasi
         self.shapeRules = []
@@ -742,7 +757,10 @@ class FrontEnd(object):
 
         returnAllFact()
         self.result = runner(outputFact, "DFS", self.choosenShape)
-        self.shapeFacts.extend(facts)
+        print("output : " + str(outputFact))
+        print(hitFacts)
+        print(allRules)
+        self.shapeFacts.extend(hitFacts)
         self.shapeRules.extend(allRules)
         self.scrollRules = Scrollbar(self.frameMatchedRules)
         self.scrollRules.pack(side = RIGHT, fill = Y)
@@ -760,14 +778,17 @@ class FrontEnd(object):
         self.txtRules.config(yscrollcommand = self.scrollRules.set)
         self.txtFacts.config(yscrollcommand = self.scrollFacts.set)
 
-        # print("shaperules", self.shapeRules)
-        for x in self.shapeRules:
-            self.txtRules.insert(END, x + '\n')
-            if(x == self.shapeRules[len(self.shapeRules)-1]):
-                self.txtRules.insert(END, "DONE")
- 
+        no = 1
+        for key in self.shapeRules:
+            if key in rules:
+                self.txtRules.insert(END, str(no) + '. IF ' + key + ' THEN ' + rules[key] + '\n')
+                no += 1
+
+        no = 1
         for x in self.shapeFacts:
-            self.txtFacts.insert(END, x + '\n')
+            for y in x:
+                self.txtFacts.insert(END, str(no) + '. ' + y + '\n')
+                no += 1
 
             
         if(self.result):
@@ -796,10 +817,11 @@ class FrontEnd(object):
         self.txtAllRules.pack(side = LEFT, fill = Y)
         self.scrollAllRules.config(command = self.txtAllRules.yview)
         self.txtAllRules.config(yscrollcommand = self.scrollAllRules.set)
-        # print("halo", self.allRules)
+        no = 1
         for x in self.allRules:
-            self.txtAllRules.insert(END, 'IF ' + x + ' THEN ' + self.allRules[x] + '\n')
-    
+            self.txtAllRules.insert(END, str(no) + '. IF ' + x + ' THEN ' + self.allRules[x] + '\n')
+            no += 1
+
     def ShowAllFacts(self):
         self.allFacts = []
         for x in outputFact:
@@ -818,11 +840,41 @@ class FrontEnd(object):
         self.txtAllFacts.pack(side = LEFT, fill = Y)
         self.scrollAllFacts.config(command = self.txtAllFacts.yview)
         self.txtAllFacts.config(yscrollcommand = self.scrollAllFacts.set)
-
-        # print("allfacts", self.allFacts)
+        
+        no = 1
         for x in self.allFacts:
-            self.txtAllFacts.insert(END, x + '\n')
+            self.txtAllFacts.insert(END, str(no) + '. ' + x + '\n')
+            no += 1
+    
+    def EditRules(self):
+        self.windowEditRules = Toplevel()
+        self.windowEditRules.title("Edit Rules")
+        self.windowEditRules.geometry("400x120")
+        
+        self.ifLabel = Label(self.windowEditRules, text = "IF")
+        self.ifLabel.pack()
+        self.ifEntry = Entry(self.windowEditRules, bd = 3, width = 400)
+        self.ifEntry.pack()
+        self.thenLabel = Label(self.windowEditRules, text = "THEN")
+        self.thenLabel.pack()
+        self.thenEntry = Entry(self.windowEditRules, bd = 3, width = 400)
+        self.thenEntry.pack()
 
+        self.editOk = Button(self.windowEditRules, width = 10, height = 1, text = "Ok", command = self.ChangeRules)
+        self.editOk.pack()
+    
+    def ChangeRules(self):
+        global rules
+        if( len(self.ifEntry.get()) != 0 and len(self.thenEntry.get()) != 0 ):
+            key_edit = self.ifEntry.get()
+            value_edit = self.thenEntry.get()
+            if key_edit in rules.keys():
+                rules[key_edit] = value_edit
+            else:
+                rules[key_edit] = value_edit
+
+        self.windowEditRules.destroy()
+        
 
 window = Tk()
 window.title("BADOOR'S YALLA SHAPE RECOGNITION")
